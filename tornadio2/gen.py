@@ -81,13 +81,13 @@ def sync_engine(func):
         def run(args, kwargs):
             gen = func(self, *args, **kwargs)
             if isinstance(gen, types.GeneratorType):
-                data.runner = SyncRunner(gen, finished)
+                data.runner = Runner(gen, finished)
                 data.runner.run()
             else:
                 return gen
 
         # Completion callback
-        def finished():
+        def finished(value):
             data.runner = None
 
             try:

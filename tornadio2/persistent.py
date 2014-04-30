@@ -144,7 +144,7 @@ class TornadioWebSocketHandler(WebSocketHandler):
 
         try:
             self.session.raw_message(message)
-        except Exception, ex:
+        except Exception as ex:
             logger.error('Failed to handle message: ' + traceback.format_exc(ex))
 
             # Close session on exception

@@ -21,8 +21,10 @@
     Active TornadIO2 connection session.
 """
 
-import urlparse
 import logging
+
+import six.moves.urllib.parse as urlparse
+from six import iteritems, iterkeys
 
 
 logger = logging.getLogger('tornadio2.session')
@@ -221,7 +223,7 @@ class Session(sessioncontainer.SessionBase):
         if endpoint is None:
             if not self.conn.is_closed:
                 # Close child connections
-                for k in self.endpoints.keys():
+                for k in list(iterkeys(self.endpoints)):
                     self.disconnect_endpoint(k)
 
                 # Close parent connections
@@ -404,7 +406,7 @@ class Session(sessioncontainer.SessionBase):
                 # in args
                 if len(args) == 1 and isinstance(args[0], dict):
                     # Fix for the http://bugs.python.org/issue4978 for older Python versions
-                    str_args = dict((str(x), y) for x, y in args[0].iteritems())
+                    str_args = dict((str(x), y) for x, y in iteritems(args[0]))
 
                     ack_response = conn.on_event(event['name'], kwargs=str_args)
                 else:
@@ -429,7 +431,7 @@ class Session(sessioncontainer.SessionBase):
                 logger.error('Incoming error: %s' % msg_data)
             elif msg_type == proto.NOOP:
                 pass
-        except Exception, ex:
+        except Exception as ex:
             logger.exception(ex)
 
             # TODO: Add global exception callback?

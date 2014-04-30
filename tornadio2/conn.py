@@ -22,7 +22,10 @@
 """
 import time
 import logging
-from inspect import ismethod, getmembers
+from inspect import getmembers
+
+from six import with_metaclass
+from six.moves.builtins import super
 
 from tornadio2 import proto
 
@@ -62,7 +65,7 @@ class EventMagicMeta(type):
     """Event handler metaclass"""
     def __init__(cls, name, bases, attrs):
         # find events, also in bases
-        is_event = lambda x: ismethod(x) and hasattr(x, '_event_name')
+        is_event = lambda x: hasattr(x, '_event_name')
         events = [(e._event_name, e) for _, e in getmembers(cls, is_event)]
         setattr(cls, '_events', dict(events))
 
@@ -70,7 +73,7 @@ class EventMagicMeta(type):
         super(EventMagicMeta, cls).__init__(name, bases, attrs)
 
 
-class SocketConnection(object):
+class SocketConnection(with_metaclass(EventMagicMeta, object)):
     """Subclass this class and define at least `on_message()` method to make a Socket.IO
     connection handler.
 
@@ -96,7 +99,6 @@ class SocketConnection(object):
         sock.emit('test', {msg:'Hello World'});
 
     """
-    __metaclass__ = EventMagicMeta
 
     __endpoints__ = dict()
 

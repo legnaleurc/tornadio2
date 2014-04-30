@@ -22,6 +22,8 @@
     support.
 """
 
+from __future__ import unicode_literals
+
 from heapq import heappush, heappop
 from time import time
 from hashlib import md5
@@ -31,7 +33,7 @@ from random import random
 def _random_key():
     """Return random session key"""
     i = md5()
-    i.update('%s%s' % (random(), time()))
+    i.update('{0}{1}'.format(random(), time()).encode('utf-8'))
     return i.hexdigest()
 
 

@@ -20,25 +20,26 @@
 
     Socket.IO protocol related functions
 """
+
+from __future__ import unicode_literals
+
+import decimal
+import json
 import logging
 
+from six.moves.builtins import super
+from six import string_types, text_type
 
+
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, decimal.Decimal):
+            return float(o)
+        return super().default(o)
+
+
+json_decimal_args = {"cls": DecimalEncoder}
 logger = logging.getLogger('tornadio2.proto')
-
-
-try:
-    import simplejson as json
-    json_decimal_args = {"use_decimal": True}
-except ImportError:
-    import json
-    import decimal
-
-    class DecimalEncoder(json.JSONEncoder):
-        def default(self, o):
-            if isinstance(o, decimal.Decimal):
-                return float(o)
-            return super(DecimalEncoder, self).default(o)
-    json_decimal_args = {"cls": DecimalEncoder}
 
 # Packet ids
 DISCONNECT = '0'
@@ -52,7 +53,7 @@ ERROR = '7'
 NOOP = '8'
 
 # socket.io frame separator
-FRAME_SEPARATOR = u'\ufffd'
+FRAME_SEPARATOR = '\ufffd'
 
 
 def disconnect(endpoint=None):
@@ -61,7 +62,7 @@ def disconnect(endpoint=None):
     `endpoint`
         Optional endpoint name
     """
-    return u'0::%s' % (
+    return '0::%s' % (
         endpoint or ''
         )
 
@@ -72,7 +73,7 @@ def connect(endpoint=None):
     `endpoint`
         Optional endpoint name
     """
-    return u'1::%s' % (
+    return '1::%s' % (
         endpoint or ''
         )
 
@@ -80,7 +81,7 @@ def connect(endpoint=None):
 def heartbeat():
     """Generate heartbeat message.
     """
-    return u'2::'
+    return '2::'
 
 
 def message(endpoint, msg, message_id=None, force_json=False):
@@ -99,14 +100,14 @@ def message(endpoint, msg, message_id=None, force_json=False):
     """
     if msg is None:
         # TODO: Log something ?
-        return u''
+        return ''
 
-    packed_message_tpl = u"%(kind)s:%(message_id)s:%(endpoint)s:%(msg)s"
-    packed_data = {'endpoint': endpoint or u'',
-                   'message_id': message_id or u''}
+    packed_message_tpl = "%(kind)s:%(message_id)s:%(endpoint)s:%(msg)s"
+    packed_data = {'endpoint': endpoint or '',
+                   'message_id': message_id or ''}
 
     # Trying to send a dict over the wire ?
-    if not isinstance(msg, (unicode, str)) and isinstance(msg, (dict, object)):
+    if not isinstance(msg, string_types) and isinstance(msg, (dict, object)):
         packed_data.update({'kind': JSON,
                             'msg': json.dumps(msg, **json_decimal_args)})
 
@@ -114,7 +115,7 @@ def message(endpoint, msg, message_id=None, force_json=False):
     # and respect forced JSON if requested
     else:
         packed_data.update({'kind': MESSAGE if not force_json else JSON,
-                            'msg': msg if isinstance(msg, unicode) else str(msg).decode('utf-8')})
+                            'msg': msg if isinstance(msg, text_type) else str(msg).decode('utf-8')})
 
     return packed_message_tpl % packed_data
 
@@ -147,7 +148,7 @@ def event(endpoint, name, message_id, *args, **kwargs):
             args=[kwargs]
         )
 
-    return u'5:%s:%s:%s' % (
+    return '5:%s:%s:%s' % (
         message_id or '',
         endpoint or '',
         json.dumps(evt)
@@ -170,11 +171,11 @@ def ack(endpoint, message_id, ack_response=None):
 
         data = json_dumps(ack_response)
 
-        return u'6::%s:%s+%s' % (endpoint or '',
+        return '6::%s:%s+%s' % (endpoint or '',
                                  message_id,
                                  data)
     else:
-        return u'6::%s:%s' % (endpoint or '',
+        return '6::%s:%s' % (endpoint or '',
                               message_id)
 
 
@@ -188,14 +189,14 @@ def error(endpoint, reason, advice=None):
     `advice`
         Error advice
     """
-    return u'7::%s:%s+%s' % (endpoint or '',
+    return '7::%s:%s+%s' % (endpoint or '',
                              (reason or ''),
                              (advice or ''))
 
 
 def noop():
     """Generate noop packet."""
-    return u'8::'
+    return '8::'
 
 
 def json_dumps(msg):
@@ -224,7 +225,7 @@ def decode_frames(data):
 
     """
     # Single message - nothing to decode here
-    assert isinstance(data, unicode), 'frame is not unicode'
+    assert isinstance(data, text_type), 'frame is not unicode'
 
     if not data.startswith(FRAME_SEPARATOR):
         return [data]
@@ -267,7 +268,7 @@ def encode_frames(packets):
         return packets[0].encode('utf-8')
 
     # Multiple packets
-    frames = u''.join(u'%s%d%s%s' % (FRAME_SEPARATOR, len(p),
+    frames = ''.join('%s%d%s%s' % (FRAME_SEPARATOR, len(p),
                                      FRAME_SEPARATOR, p)
                       for p in packets)
 
