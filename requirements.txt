@@ -1,2 +1,2 @@
-Tornado>=2.1.1
-simplejson>=2.1.0
+Tornado>=3
+six
