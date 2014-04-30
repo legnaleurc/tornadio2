@@ -19,7 +19,7 @@ except:
 
 setup(
     name='TornadIO2',
-    version='0.0.4',
+    version='0.0.4.1',
     author='Serge S. Koval',
     author_email='serge.koval@gmail.com',
     packages=['tornadio2'],
@@ -32,5 +32,15 @@ setup(
     install_requires=[
         'tornado >= 3',
         'six',
-    ]
+    ],
+    classifiers=[
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.2',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: Implementation :: CPython',
+    ],
 )
