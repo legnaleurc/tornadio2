@@ -87,7 +87,7 @@ class HandshakeHandler(preflight.PreflightHandler):
 
             # TODO: Fix heartbeat timeout. For now, it is adding 5 seconds to the client timeout.
             data = '%s:%d:%d:%s' % (
-                sess.session_id,
+                sess.session_id.decode('utf-8'),
                 # TODO: Fix me somehow a well. 0.9.2 will drop connection is no
                 # heartbeat was sent over
                 settings['heartbeat_interval'] + settings['client_timeout'],
