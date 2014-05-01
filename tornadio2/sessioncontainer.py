@@ -34,7 +34,7 @@ def _random_key():
     """Return random session key"""
     i = md5()
     i.update('{0}{1}'.format(random(), time()).encode('utf-8'))
-    return i.hexdigest()
+    return i.hexdigest().encode('utf-8')
 
 
 class SessionBase(object):
