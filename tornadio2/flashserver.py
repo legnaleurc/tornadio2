@@ -21,7 +21,8 @@
     Flash Socket policy server implementation. Merged with minor modifications
     from the SocketTornad.IO project.
 """
-from __future__ import with_statement
+
+from __future__ import unicode_literals
 
 import socket
 import errno

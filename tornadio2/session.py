@@ -21,6 +21,8 @@
     Active TornadIO2 connection session.
 """
 
+from __future__ import unicode_literals
+
 import logging
 
 import six.moves.urllib.parse as urlparse

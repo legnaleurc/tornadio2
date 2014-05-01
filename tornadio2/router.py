@@ -21,6 +21,8 @@
     Transport protocol router and main entry point for all socket.io clients.
 """
 
+from __future__ import unicode_literals
+
 from tornado import ioloop, version_info
 from tornado.web import HTTPError
 

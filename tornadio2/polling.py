@@ -20,6 +20,9 @@
 
     This module implements socket.io polling transports.
 """
+
+from __future__ import unicode_literals
+
 import time
 import logging
 import urllib

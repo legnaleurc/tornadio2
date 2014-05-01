@@ -20,6 +20,8 @@
     Generator-based interface to make it easier to work in an asynchronous environment.
 """
 
+from __future__ import unicode_literals
+
 import functools
 import types
 

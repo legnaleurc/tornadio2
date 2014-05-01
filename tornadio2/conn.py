@@ -20,6 +20,9 @@
 
     Tornadio connection implementation.
 """
+
+from __future__ import unicode_literals
+
 import time
 import logging
 from inspect import getmembers

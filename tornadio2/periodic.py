@@ -21,6 +21,9 @@
     This module implements customized PeriodicCallback from tornado with
     support of the sliding window.
 """
+
+from __future__ import unicode_literals
+
 import time
 import logging
 

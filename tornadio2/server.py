@@ -22,6 +22,8 @@
     protocol is enabled). Shamesly borrowed from the SocketTornad.IO project.
 """
 
+from __future__ import unicode_literals
+
 import logging
 
 from tornado import ioloop

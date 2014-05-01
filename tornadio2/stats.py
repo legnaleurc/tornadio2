@@ -20,6 +20,9 @@
 
     Statistics module
 """
+
+from __future__ import unicode_literals
+
 from datetime import datetime
 from collections import deque
 
