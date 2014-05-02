@@ -27,7 +27,7 @@ import time
 import logging
 from inspect import getmembers
 
-from six import with_metaclass
+from six import add_metaclass
 from six.moves.builtins import super
 
 from tornadio2 import proto
@@ -66,6 +66,20 @@ def event(name_or_func):
 
 class EventMagicMeta(type):
     """Event handler metaclass"""
+
+    def __new__(cls, name, bases, attrs):
+        attrs['_participants'] = set()
+
+        if 'on_open' in attrs:
+            on_open = attrs['on_open']
+            attrs['on_open'] = lambda self, request: EventMagicMeta._on_open(on_open, self, request)
+
+        if 'on_close' in attrs:
+            on_close = attrs['on_close']
+            attrs['on_close'] = lambda self: EventMagicMeta._on_close(on_close, self)
+
+        return super(EventMagicMeta, cls).__new__(cls, name, bases, attrs)
+
     def __init__(cls, name, bases, attrs):
         # find events, also in bases
         is_event = lambda x: hasattr(x, '_event_name')
@@ -75,8 +89,19 @@ class EventMagicMeta(type):
         # Call base
         super(EventMagicMeta, cls).__init__(name, bases, attrs)
 
+    @staticmethod
+    def _on_open(f, self, request):
+        self._participants.add(self)
+        return f(self, request)
 
-class SocketConnection(with_metaclass(EventMagicMeta, object)):
+    @staticmethod
+    def _on_close(f, self):
+        self._participants.remove(self)
+        return f(self)
+
+
+@add_metaclass(EventMagicMeta)
+class SocketConnection(object):
     """Subclass this class and define at least `on_message()` method to make a Socket.IO
     connection handler.
 
@@ -123,6 +148,16 @@ class SocketConnection(with_metaclass(EventMagicMeta, object)):
         self.ack_queue = dict()
 
         self._event_worker = None
+
+    @classmethod
+    def send_to_all(cls, message):
+        for p in cls._participants:
+            p.send(message)
+
+    @classmethod
+    def emit_to_all(cls, name, *args, **kwargs):
+        for p in cls._participants:
+            p.emit(name, *args, **kwargs)
 
     # Public API
     def on_open(self, request):
