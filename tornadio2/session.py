@@ -122,7 +122,7 @@ class Session(sessioncontainer.SessionBase):
         # Endpoints
         self.endpoints = dict()
 
-        result = self.conn.on_open(self.info)
+        result = self.conn.open(self.info)
         if result is not None and not result:
             raise HTTPError(401)
 
@@ -309,7 +309,7 @@ class Session(sessioncontainer.SessionBase):
 
         self.send_message(proto.connect(endpoint))
 
-        if conn.on_open(self.info) == False:
+        if conn.open(self.info) == False:
             self.disconnect_endpoint(endpoint)
 
     def disconnect_endpoint(self, endpoint):

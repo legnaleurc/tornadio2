@@ -70,14 +70,6 @@ class EventMagicMeta(type):
     def __new__(cls, name, bases, attrs):
         attrs['_participants'] = set()
 
-        if 'on_open' in attrs:
-            on_open = attrs['on_open']
-            attrs['on_open'] = lambda self, request: EventMagicMeta._on_open(on_open, self, request)
-
-        if 'on_close' in attrs:
-            on_close = attrs['on_close']
-            attrs['on_close'] = lambda self: EventMagicMeta._on_close(on_close, self)
-
         return super(EventMagicMeta, cls).__new__(cls, name, bases, attrs)
 
     def __init__(cls, name, bases, attrs):
@@ -88,16 +80,6 @@ class EventMagicMeta(type):
 
         # Call base
         super(EventMagicMeta, cls).__init__(name, bases, attrs)
-
-    @staticmethod
-    def _on_open(f, self, request):
-        self._participants.add(self)
-        return f(self, request)
-
-    @staticmethod
-    def _on_close(f, self):
-        self._participants.remove(self)
-        return f(self)
 
 
 @add_metaclass(EventMagicMeta)
@@ -158,6 +140,14 @@ class SocketConnection(object):
     def emit_to_all(cls, name, *args, **kwargs):
         for p in cls._participants:
             p.emit(name, *args, **kwargs)
+
+    def open(self, request):
+        self._participants.add(self)
+        return self.on_open(request)
+
+    def close(self):
+        self._participants.remove(self)
+        return self.on_close()
 
     # Public API
     def on_open(self, request):
